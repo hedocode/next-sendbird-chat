@@ -3,7 +3,7 @@ export default function Button(props) {
     let colorToApply;
     switch (color) {
         case "red":
-            colorToApply = "bg-red-300 hover:bg-red-500";
+            colorToApply = "bg-red-300 hover:bg-red-500 dark:bg-red-900 dark:hover:bg-red-700";
             break;
     
         default:
