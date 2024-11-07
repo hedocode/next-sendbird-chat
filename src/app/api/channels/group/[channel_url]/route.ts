@@ -13,6 +13,6 @@ export async function DELETE(
     { params }: { params: Promise<{ channel_url: string }> }
 ) {
     const channel_url = (await params).channel_url;
-    const openChannels = await ChatAPI.deleteChannel("open_channels", channel_url);
+    const openChannels = await ChatAPI.deleteChannel("group_channels", channel_url);
     return Response.json(openChannels);
 }

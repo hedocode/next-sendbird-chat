@@ -50,6 +50,7 @@ export default class APIAdapter {
      * @param {object} params.reply The Fastify reply object
      * @returns 
      */
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     static async getCallData(
         { verb, path, body }
         : { verb: HTTP_VERBS, path: string, body?: any, reply?: NextApiResponse}
@@ -57,13 +58,21 @@ export default class APIAdapter {
         let call;
         if(["GET", "DELETE"].includes(verb.toUpperCase())) {
             call = axios[verb](this.API_BASE_URL + path, this.tokenHeaders)
+            .catch(
+                reason => {
+                    return { data: {verb, path, error: reason.response.data} } 
+                }
+            );
         }
 
         if (["POST", "PUT"].includes(verb.toUpperCase())) {
             call = axios[verb](this.API_BASE_URL + path, body, this.tokenHeaders)
+            .catch(
+                reason => {
+                    return { data: {verb, path, error: reason.response.data} }
+                }
+            );
         }
-
-        call?.catch( reason => console.error("%o - %o ERRR : %o", verb, path, reason.response.data) );
 
         return (await call)?.data;
     }
@@ -87,6 +96,7 @@ export default class APIAdapter {
      * @param {*|undefined} reply Optionnal Fastify request for error handling.
      * @returns Response data or error
      */
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     static async post(path: string, body: any) {
         return await this.getCallData({
             verb: HTTP_VERBS.POST, path, body
@@ -99,6 +109,7 @@ export default class APIAdapter {
      * @param {*} reply Optionnal Fastify request for error handling.
      * @returns Response data or error
      */
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     static async put(path: string, body: any) {
         return await this.getCallData({
             verb: HTTP_VERBS.GET, path, body

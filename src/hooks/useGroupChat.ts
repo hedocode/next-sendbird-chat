@@ -16,7 +16,8 @@ export function useGroupChat(
     setCurrentChannel?: Function,
     params?: Promise<{ type: string, channel_url?: string }>,
 ) {
-    const { userId, accessToken, sb } = useAuthContext();
+    const authContext = useAuthContext();
+    const { userId, accessToken, groupSB } = authContext ?? {}
     
     const [groupChannels, setGroupChannels] = useState<GroupChannel[]>([]);
 
@@ -32,9 +33,9 @@ export function useGroupChat(
     useEffect( loadOpenChannels, [] );
 
     function connectToAppAndLoadChannel() {
-        if(userId && accessToken && sb) {
+        if(userId && accessToken && groupSB) {
             (async () => {
-                await sb.connect(userId, accessToken);
+                await groupSB.connect(userId, accessToken);
 
                 // const params: GroupChannelListQueryParams = {
                 //     userIdsFilter: {
@@ -42,7 +43,7 @@ export function useGroupChat(
                 //       queryType: QueryType.OR,
                 //     }
                 // };
-                // const query: GroupChannelListQuery = sb.groupChannel.createMyGroupChannelListQuery(params);
+                // const query: GroupChannelListQuery = groupSB.groupChannel.createMyGroupChannelListQuery(params);
                 
                 // // Only channel A is returned in a result list through the groupChannels parameter of the callback function.
                 // const channels: GroupChannel[] = await query.next();
@@ -54,8 +55,10 @@ export function useGroupChat(
                     let { channel_url } = (await params);
                     if (channel_url) {
                         channel_url = decodeURI(channel_url);
-                        console.log("sb : ", sb);
-                        const urlChannel = await sb.groupChannel.getChannel(channel_url);
+                        const urlChannel = await groupSB.groupChannel.getChannel(channel_url) as GroupChannel;
+                        const res = (await axios.post(`/api/channels/group/${channel_url}/operators`, [userId])).data;
+                        
+                        urlChannel.addOperators([userId]);
                         
                         if (urlChannel.isPublic) {
                             await urlChannel.join();
@@ -63,22 +66,33 @@ export function useGroupChat(
         
         
                         // const res = (await axios.post("/api/channels/open", { name: "general", channel_url: "general"}));
-                        setCurrentChannel(urlChannel);
+                        if (setCurrentChannel) {
+                            setCurrentChannel(urlChannel);
+                        }
                     }
                 }
             })()
         }
     }
-    useEffect( connectToAppAndLoadChannel, [userId, accessToken, sb, currentChannel] )
+    useEffect( connectToAppAndLoadChannel, [userId, accessToken, groupSB, currentChannel] )
+
+    function isCurrentChannel(channel: GroupChannel, index?: number | undefined, array?: GroupChannel[] | undefined) {
+        return channel.channel_url === currentChannel?.url;
+    }
+
+    async function deleteGroupChannel(channel_url: string) {
+        await axios.delete(`/api/channels/group/${channel_url}`);
+        // const channel: GroupChannel = await groupSB.groupChannel.getChannel(channel_url);
+
+        // await channel.delete();
+    }
 
     
-    function isCurrentChannel(channel: GroupChannel) {
-        return channel.name === currentChannel?.name;
-    }
     
     return {
         groupChannels,
         currentChannel,
-        isCurrentChannel
+        isCurrentChannel,
+        deleteGroupChannel,
     };
 }

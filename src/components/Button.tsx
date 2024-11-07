@@ -1,8 +1,19 @@
 export default function Button(props) {
-    const { children } = props;
+    const { children, color, className = "rounded" } = props;
+    let colorToApply;
+    switch (color) {
+        case "red":
+            colorToApply = "bg-red-300 hover:bg-red-500";
+            break;
+    
+        default:
+            colorToApply = "bg-purple-500 hover:bg-purple-400";
+            break;
+    }
     return (
-        <button className='shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded'
+        <button
             {...props}
+            className={className + ' button focus:shadow-outline focus:outline-none ' + colorToApply }
         >
             {children}
         </button>

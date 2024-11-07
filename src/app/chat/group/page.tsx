@@ -1,21 +1,26 @@
 "use client";
 
 import ChannelTypePicker from '../components/ChannelTypePicker';
-import ChannelsList from '../components/ChannelsList';
 import { useGroupChat } from '@/hooks/useGroupChat';
+import ChannelsList from '../components/ChannelsList';
 
 function Chat() {
     
     // Separating the logic from the views using a hook.
-    const channelsData = useGroupChat();
-    const { groupChannels } = channelsData;
+    const groupChat = useGroupChat();
+    const { groupChannels, deleteGroupChannel } = groupChat;
 
     return (
-        <main className='max-h-screen h-screen flex flex-col divide-y-2'>
-            <ChannelTypePicker {...channelsData} currentChannelType='group'/>
-            <div className='flex flex-col h-full p-4'>
-                <ChannelsList {...channelsData} currentChannelType='group' channelsToDisplay={groupChannels}/>
-                <section className='flex flex-row justify-center items-center flex-grow flex-wrap gap-10 divide-x-2 border-blue-100 bg-gray-100 border-2 border-gray-200'>
+        <main className='max-h-dvh h-dvh flex flex-col divide-y-2'>
+            <ChannelTypePicker {...groupChat} currentChannelType='group'/>
+            <div className='flex flex-col h-full p-4 items-center'>
+                <ChannelsList
+                    {...groupChat}
+                    channelsToDisplay={ groupChannels }
+                    deleteChannel={deleteGroupChannel}
+                    currentChannelType='group'
+                />
+                <section className='channel-wrapper justify-center items-center'>
                     Choose a channel to access it's chat
                 </section>
             </div>

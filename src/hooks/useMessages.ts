@@ -1,7 +1,7 @@
 "use client"; 
 
 import { RefObject, UIEvent, useEffect, useState } from "react";
-import { GroupChannel } from "@sendbird/chat/groupChannel";
+import { GroupChannel, SendbirdGroupChat } from "@sendbird/chat/groupChannel";
 import { BaseMessage, MessageTypeFilter, PreviousMessageListQuery, PreviousMessageListQueryParams, UserMessage, UserMessageCreateParams } from "@sendbird/chat/message";
 import { BaseChannel } from "@sendbird/chat";
 import { OpenChannel } from "@sendbird/chat/openChannel";
@@ -69,6 +69,13 @@ export function useMessages(
             
         setMessageDraft("");
     }
+    
+    async function deleteMessage(groupSB:SendbirdGroupChat, channel_url: string, message: UserMessage) {
+        const channel: GroupChannel = await groupSB.groupChannel.getChannel(channel_url);
+
+        await channel.deleteMessage(message);
+        setMessages([...messages].filter(m => m !== message));
+    }
 
     // If on bottom and new messages incoming,
     // scroll to last, unless we just loaded older ones.
@@ -86,7 +93,6 @@ export function useMessages(
     useEffect(scrollToLastMessage, [messages]);
 
     function loadCurrentChannelMessages() {
-        console.log("currentChannel : %o", currentChannel);
         if (currentChannel) {
             (async () => {
                 const params: PreviousMessageListQueryParams = {
@@ -116,6 +122,7 @@ export function useMessages(
         addMessage,
         customAddMessage,
         loadOlderMessages,
-        sendMessage
+        sendMessage,
+        deleteMessage
     };
 }

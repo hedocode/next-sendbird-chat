@@ -1,22 +1,26 @@
 "use client";
 
 import ChannelTypePicker from '../components/ChannelTypePicker';
-import ChannelsList from '../components/ChannelsList';
 import { useOpenChat } from '@/hooks/useOpenChat';
+import ChannelsList from '../components/ChannelsList';
 
 function Chat() {
 
     // Separating the logic from the views using a hook.
     const channelsData = useOpenChat();
-
-    const { openChannels } = channelsData;
+    const { isCurrentChannel, openChannels, deleteOpenChannel } = channelsData;
 
     return (
-        <main className='max-h-screen h-screen flex flex-col divide-y-2'>
+        <main className='max-h-dvh h-dvh flex flex-col divide-y-2'>
             <ChannelTypePicker currentChannelType='open'/>
-            <div className='flex flex-col h-full p-4'>
-                <ChannelsList {...channelsData} currentChannelType='open' channelsToDisplay={ openChannels }/>
-                <section className='flex flex-row justify-center items-center flex-grow flex-wrap gap-10 divide-x-2 border-blue-100 bg-gray-100 border-2 border-gray-200'>
+            <div className='flex flex-col items-center h-full p-4'>
+                <ChannelsList
+                    isCurrentChannel={isCurrentChannel}
+                    channelsToDisplay={ openChannels }
+                    deleteChannel={ deleteOpenChannel }
+                    currentChannelType='open'
+                />
+                <section className='channel-wrapper justify-center items-center'>
                     Choose a channel to access it's chat
                 </section>
             </div>

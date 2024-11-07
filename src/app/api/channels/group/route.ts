@@ -1,6 +1,6 @@
 import ChatAPI from '@/app/api/calls';
 
-export async function GET(request: Request) {
+export async function GET() {
   const openChannels = await ChatAPI.listGroupChannels();
   return Response.json(openChannels);
 }
@@ -8,7 +8,6 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
 
   const requestJSON = await request.json()
-  console.log("requestJSON : %o", requestJSON)
   const { usersId } = requestJSON;
 
   if(usersId) {

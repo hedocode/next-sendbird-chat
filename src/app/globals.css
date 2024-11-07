@@ -19,3 +19,62 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+@layer components {
+  .farthest {
+    @apply bg-gray-50 dark:bg-gray-900;
+  }
+
+  .further {
+    @apply bg-gray-100 dark:bg-gray-800 border-2 border-gray-200;
+  }
+
+  .max-width-5xl {
+    @apply max-w-5xl w-full;
+  }
+
+  .flex-row-wrap_sm-col {
+    @apply flex sm:flex-row flex-col flex-wrap;
+  }
+
+  .channel-wrapper {
+    @apply flex-row-wrap_sm-col grow sm:gap-10 sm:divide-x-2 divide-y-2 further max-width-5xl;
+  }
+
+  .channel-link {
+    @apply px-2 py-1 rounded-t-md border-x-2 border-t-2 relative;
+  }
+
+  .delete-btn {
+    @apply absolute top-0 right-0 w-6 bg-gray-200 border-gray-400 border-2 rounded-md dark:bg-gray-700 dark:border-gray-600;
+  }
+
+  .channel-list {
+    @apply flex gap-2 max-w-5xl w-full overflow-auto;
+  }
+
+  .openChannel {
+    @apply bg-green-50 border-green-100 hover:bg-green-100 hover:border-green-700 dark:bg-green-900 dark:hover:bg-green-800;
+  }
+
+  .message-wrapper {
+    @apply p-2 flex flex-col gap-4 items-start flex-grow overflow-auto h-0 farthest;
+  }
+
+  .message-item {
+    @apply relative max-w-sm border-2 p-2 rounded-xl;
+  }
+
+  .message-list {
+    @apply flex flex-col flex-grow max-h-full;
+  }
+
+  .message-item:hover .delete-btn {
+    @apply opacity-100;
+  }
+
+  .button {
+    @apply shadow text-white font-bold py-2 px-4;
+  }
+}

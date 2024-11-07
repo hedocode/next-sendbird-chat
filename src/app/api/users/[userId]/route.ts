@@ -5,6 +5,10 @@ export async function GET(
     { params }: { params: Promise<{ userId: string }> }
 ) {
     const userId = (await params).userId;
-    const user = await ChatAPI.getUser(userId);
+    const user = await ChatAPI.getUser(userId).catch(
+        (reason) => {
+            return reason.message;
+        }
+    );
     return Response.json(user);
 }

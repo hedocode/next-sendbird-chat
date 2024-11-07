@@ -6,7 +6,22 @@ import { SendbirdOpenChat } from '@sendbird/chat/openChannel';
 import { SendbirdGroupChat } from "@sendbird/chat/groupChannel";
 import { BaseMessage } from "@sendbird/chat/message";
 
-const Context = createContext("auth");
+
+export type AuthType = {
+  userId : string,
+  setUserId: Function,
+  accessToken: string,
+  setAccessToken: Function,
+  openSB: SendbirdOpenChat,
+  setOpenSB: Function,
+  groupSB: SendbirdGroupChat,
+  setGroupSB: Function,
+  messages: BaseMessage[],
+  setMessages: Function,
+  APP_ID: string
+}
+
+const Context = createContext<AuthType|null>(null);
 
 export function AuthProvider(
   { APP_ID, children }
@@ -17,7 +32,8 @@ export function AuthProvider(
 
   const [messages, setMessages] = useState<BaseMessage[]>([])
 
-  const [sb, setSb] = useState<SendbirdOpenChat|SendbirdGroupChat>();
+  const [openSB, setOpenSB] = useState<SendbirdOpenChat>();
+  const [groupSB, setGroupSB] = useState<SendbirdGroupChat>();
   
   // Let's consider it's not really "sensitive" data.
   // We have to do that if we want to keep it when refreshing.
@@ -25,28 +41,24 @@ export function AuthProvider(
   useLocalStorageSync('accessToken', accessToken, setAccessToken);
 
   const value = { 
-    userId, setUserId,
-    accessToken, setAccessToken,
-    sb, setSb,
-    messages, setMessages,
+    userId,
+    setUserId,
+    accessToken,
+    setAccessToken,
+    openSB,
+    setOpenSB,
+    groupSB,
+    setGroupSB,
+    messages,
+    setMessages,
     APP_ID
-  };
+  } as AuthType;
 
   return (
     <Context.Provider value={value}>{children}</Context.Provider>
   );
 }
 
-export function useAuthContext() : {
-  userId : string,
-  setUserId: Function,
-  accessToken: string,
-  setAccessToken: Function,
-  sb: SendbirdOpenChat|SendbirdGroupChat,
-  setSb: Function,
-  messages: BaseMessage[],
-  setMessages: Function,
-  APP_ID: string
-} {
+export function useAuthContext() : AuthType|null {
   return useContext(Context);
 }

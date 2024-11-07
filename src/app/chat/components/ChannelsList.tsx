@@ -1,40 +1,45 @@
-import { GroupChannel } from "@sendbird/chat/groupChannel";
-import { OpenChannel } from "@sendbird/chat/openChannel";
 import Link from "next/link";
 import ChannelCreation from "./ChannelCreation";
+import { OpenChannel } from "@sendbird/chat/openChannel";
+import { GroupChannel } from "@sendbird/chat/groupChannel";
 
 export default function ChannelsList(
-    { channelsToDisplay, isCurrentChannel, currentChannelType }
+    { channelsToDisplay, isCurrentChannel, currentChannelType, deleteChannel }
     : { 
-        channelsToDisplay?: GroupChannel[]|OpenChannel[],
-        isCurrentChannel: Function,
-        currentChannelType: string
+        channelsToDisplay?: OpenChannel[]|GroupChannel[],
+        isCurrentChannel: (value: OpenChannel|GroupChannel, index?: number, array?: OpenChannel[]|GroupChannel[]) => value is OpenChannel|GroupChannel,
+        currentChannelType: string,
+        deleteChannel: (channel_url: string) => void
     }
 ) {
-
     function ChannelLink({ channel, isCurrent = false } : { channel: GroupChannel|OpenChannel, isCurrent?: boolean}) {
-        const cls = "px-2 py-1 rounded-t-md border-x-2 border-t-2 " + (
-            isCurrent ?
-            "bg-gray-100 border-gray-200"
-        :
-            "px-2 py-1 rounded-t-md border-x-2 border-t-2 bg-green-50 border-green-100 hover:bg-green-100 hover:border-green-700"
-        );
-        return (
+        const cls = ( isCurrent ? "further pl-2 pr-8" : "openChannel" ) + " channel-link";
+        return isCurrent ? 
+        (
+            <div className={cls}>
+                <button
+                    className="delete-btn"
+                    onClick={ () => deleteChannel(currentChannelType === "group" ? channel.channel_url : channel.name) }
+                >
+                    x
+                </button>
+                {channel.name}
+            </div>
+        ): (
             <Link
-                href={`/chat/${currentChannelType}/${currentChannelType === "open" ? channel.name : channel.channel_url}`}
+                href={`/chat/${currentChannelType}/${currentChannelType === "group" ? channel.channel_url : channel.name}`}
                 className={cls}
             >
                 {channel.name}
             </Link>
         );
     }
-
-    function channelListMapper( channel: OpenChannel|GroupChannel, isCurrent?: boolean ) {
-        return <ChannelLink channel={channel} isCurrent={isCurrent} key={currentChannelType === "open" ? channel.name : channel.channel_url}/>
+    function channelListMapper( channel: GroupChannel|OpenChannel, isCurrent?: boolean ) {
+        return <ChannelLink channel={channel} isCurrent={isCurrent} key={currentChannelType === "group" ? channel.channel_url : channel.name} />
     }
 
     return (
-        <div className='flex gap-2'>
+        <div className='channel-list'>
             <nav className='flex gap-2'>
                 {channelsToDisplay && channelsToDisplay.filter(isCurrentChannel).map(
                     channel => channelListMapper(channel, true)

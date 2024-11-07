@@ -1,6 +1,6 @@
 import ChatAPI from '../../calls';
 
-export async function GET(request: Request) {
+export async function GET() {
   const openChannels = await ChatAPI.listOpenChannels();
   return Response.json(openChannels);
 }

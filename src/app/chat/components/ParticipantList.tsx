@@ -7,10 +7,11 @@ export default function ParticipantList(
     { channelParticipants, goPrivate }
     : { channelParticipants?: User[], goPrivate?: Function }
 ) {
-    const { userId } = useAuthContext();
+    const authContext = useAuthContext();
+    const { userId } = authContext ?? {}
 
     return channelParticipants && (
-        <section>
+        <aside className='p-2 max-h-20 sm:max-h-full'>
             <h3>Participants en ligne :</h3>
             {channelParticipants.map(
                 participant => (
@@ -31,6 +32,6 @@ export default function ParticipantList(
                 )
             )}
             <br/>
-        </section>
+        </aside>
     )
 }

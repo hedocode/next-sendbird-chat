@@ -34,7 +34,6 @@ export default class ChatAPI extends APIAdapter {
     }
 
     static async postGroupChannel(usersIdArray: string[]) {
-        console.log("usersIdArray : %o", usersIdArray);
         return (await this.post("group_channels", { user_ids: usersIdArray}));
     }
 
@@ -62,8 +61,11 @@ export default class ChatAPI extends APIAdapter {
         return await this.get(`${channel_type}/${channel_url}/messages`);
     }
 
-    async enterOpenChannel(channel_url: string) {
-        const channel = this.calls.openChannel.getChannel(channel_url);
-        return (await channel).enter();
+    static async postOperatorsToChat(channel_type: string, channel_url: string, usersId: string[]) {
+        return await this.post((`${channel_type}/${channel_url}/operators`), { "operator_ids": usersId});
+    }
+
+    static async deleteChannel(channel_type: string, channel_url: string) {
+        return await this.delete(`${channel_type}/${channel_url}`)
     }
 }

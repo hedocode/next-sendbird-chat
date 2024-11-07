@@ -6,8 +6,6 @@ import { OpenChannel, OpenChannelHandler, OpenChannelListQuery } from "@sendbird
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-
-
 export function useOpenChat(
     {
         currentChannel,
@@ -23,7 +21,8 @@ export function useOpenChat(
         customAddMessage?: Function,
     } = {}
 ) {
-    const { userId, accessToken, sb } = useAuthContext();
+    const authContext = useAuthContext();
+    const { userId, accessToken, openSB } = authContext ?? {};
 
     const [openChannels, setOpenChannels] = useState<OpenChannel[]>([]);
     const [channelParticipants, setChannelParticipants] = useState<User[]>([]);
@@ -37,21 +36,24 @@ export function useOpenChat(
 
     
     function connectToAppAndLoadChannel() {
-        if(sb && accessToken && userId) {
+        if(openSB && accessToken && userId) {
             (async () => {
 
-                await sb.connect(userId, accessToken);
+                await openSB.connect(userId, accessToken);
 
-                // https://sendbird.com/docs/chat/sdk/v4/javascript/channel/retrieving-channels/retrieve-a-list-of-channels                
-                const query: OpenChannelListQuery = sb.openChannel.createOpenChannelListQuery();
+                // https://sendbird.com/docs/chat/sdk/v4/javascript/channel/retrieving-channels/retrieve-a-list-of-channels
+                const query: OpenChannelListQuery = openSB.openChannel.createOpenChannelListQuery();
                 if (query.hasNext) {
                     const channels: OpenChannel[] = await query.next();
                     setOpenChannels(channels);
                 }
                 if (params) {
-                    let { channel_url } = (await params);
+                    const { channel_url } = (await params);
+                
                     if (channel_url) {
-                        const urlChannel = await sb.openChannel.getChannel(channel_url);
+                        const urlChannel = await openSB.openChannel.getChannel(channel_url);
+                        const res = (await axios.post(`/api/channels/open/${channel_url}/operators`, [userId])).data;
+                        // await urlChannel.addOperators([userId]); // WTF
                         await urlChannel.enter();
                         const participants = await (await urlChannel.createParticipantListQuery({
                             limit: 25,
@@ -67,7 +69,7 @@ export function useOpenChat(
             })()
         }
     }
-    useEffect( connectToAppAndLoadChannel, [userId, accessToken, sb, currentChannel, setCurrentChannel] )
+    useEffect( connectToAppAndLoadChannel, [userId, accessToken, openSB, currentChannel, setCurrentChannel, params] )
 
 
     
@@ -87,7 +89,7 @@ export function useOpenChat(
                 }
             });
 
-            sb.openChannel.addOpenChannelHandler("WATCH_MESSAGES", channelHandler);
+            openSB.openChannel.addOpenChannelHandler("WATCH_MESSAGES", channelHandler);
         }
     }
     useEffect(listenMessagesAndParticipantsChanges, [messages, currentChannel]);
@@ -101,7 +103,6 @@ export function useOpenChat(
             isDistinct: true,
         };
         const channel: GroupChannel = (await axios.post("/api/channels/group", { usersId: [userId, targetUserId]})).data;
-        console.log("newGroupChannel : %o", channel);
         
         if (channel.isPublic) {
             await channel.join();
@@ -115,12 +116,19 @@ export function useOpenChat(
     function isCurrentChannel(channel: OpenChannel) {
         return channel.name === currentChannel?.name;
     }
+    
+    async function deleteOpenChannel (channel_url: string) {
+        // await axios.delete(`/api/channels/group/${channel_url}`);
+        const channel: OpenChannel = await openSB.openChannel.getChannel(channel_url);
+        await channel.delete();
+    }
 
     return {
         openChannels,
         currentChannel,
         channelParticipants,
         isCurrentChannel,
-        goPrivate
+        goPrivate,
+        deleteOpenChannel
     }
 }
