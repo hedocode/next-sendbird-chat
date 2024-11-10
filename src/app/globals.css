@@ -39,7 +39,7 @@ body {
   }
 
   .channel-wrapper {
-    @apply flex-row-wrap_sm-col grow sm:gap-10 sm:divide-x-2 divide-y-2 further max-width-5xl;
+    @apply flex-row-wrap_sm-col grow sm:gap-10 divide-x-0 sm:divide-x-2 divide-y-2 sm:divide-y-0 further max-width-5xl;
   }
 
   .channel-link {

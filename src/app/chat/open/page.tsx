@@ -3,6 +3,7 @@
 import ChannelTypePicker from '../components/ChannelTypePicker';
 import { useOpenChat } from '@/hooks/useOpenChat';
 import ChannelsList from '../components/ChannelsList';
+import ChatLayoutTemplate from '@/components/ChatLayoutTemplate';
 
 function Chat() {
 
@@ -11,20 +12,21 @@ function Chat() {
     const { isCurrentChannel, openChannels, deleteOpenChannel } = channelsData;
 
     return (
-        <main className='max-h-dvh h-dvh flex flex-col divide-y-2'>
-            <ChannelTypePicker currentChannelType='open'/>
-            <div className='flex flex-col items-center h-full p-4'>
+        <ChatLayoutTemplate
+            channelTypePicker={<ChannelTypePicker currentChannelType='open'/>}
+            channelList={
                 <ChannelsList
                     isCurrentChannel={isCurrentChannel}
                     channelsToDisplay={ openChannels }
                     deleteChannel={ deleteOpenChannel }
                     currentChannelType='open'
                 />
-                <section className='channel-wrapper justify-center items-center'>
-                    Choose a channel to access it's chat
-                </section>
-            </div>
-        </main>
+            }
+        >
+            <section className='channel-wrapper justify-center items-center'>
+                Choose a channel to access it's chat
+            </section>
+        </ChatLayoutTemplate>
     )
 }
 

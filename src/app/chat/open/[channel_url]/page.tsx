@@ -1,17 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
-import { useAuthContext } from '@/contexts/auth';
-import Message from '../../components/Message';
-import ChannelTypePicker from '../../components/ChannelTypePicker';
-import ParticipantList from '../../components/ParticipantList';
-import MessageDraft from '../../components/MessageDraft';
-import { useOpenChat } from '@/hooks/useOpenChat';
-import { useMessages } from '@/hooks/useMessages';
+import { useRouter } from 'next/navigation';
 import { OpenChannel, OpenChannelModule, SendbirdOpenChat } from '@sendbird/chat/openChannel';
 import SendbirdChat from '@sendbird/chat';
-import ChannelsList from '../../components/ChannelsList';
-import { useRouter } from 'next/navigation';
+
+import { useAuthContext } from '@/contexts/auth';
+import { useOpenChat } from '@/hooks/useOpenChat';
+import { useMessages } from '@/hooks/useMessages';
+
+// Imported components
+import ChannelTypePicker from '@/app/chat/components/ChannelTypePicker';
+import Message from '@/app/chat/components/Message';
+import ParticipantList from '@/app/chat/components/ParticipantList';
+import MessageDraft from '@/app/chat/components/MessageDraft';
+import ChannelsList from '@/app/chat/components/ChannelsList';
+import ChatLayoutTemplate from '@/components/ChatLayoutTemplate';
 
 function Chat({
     params,
@@ -53,51 +57,52 @@ function Chat({
     
 
     return (
-        <main className='max-h-dvh h-dvh flex flex-col divide-y-2'>
-            <ChannelTypePicker currentChannelType='open'/>
-            <div className='flex flex-col h-full p-4 items-center'>
-                <ChannelsList
-                    isCurrentChannel={isCurrentChannel}
-                    channelsToDisplay={ openChannels }
-                    deleteChannel={
-                        (channel_url) => {
-                            (async () => {
-                                await deleteOpenChannel(channel_url);
-                                router.push("/chat/open")
-                            })()
+        <ChatLayoutTemplate
+            channelTypePicker={<ChannelTypePicker currentChannelType='open'/>}
+            channelList={
+                    <ChannelsList
+                        isCurrentChannel={isCurrentChannel}
+                        channelsToDisplay={ openChannels }
+                        deleteChannel={
+                            (channel_url) => {
+                                (async () => {
+                                    await deleteOpenChannel(channel_url);
+                                    router.push("/chat/open")
+                                })()
+                            }
                         }
-                    }
-                    currentChannelType='open'
-                />
-                <section className='channel-wrapper'>
-                    <ParticipantList channelParticipants={channelParticipants} goPrivate={goPrivate}/>
-                    {messages && (
-                        <article className='message-list'>
-                            <h3 className='p-2 shadow-md z-10'>
-                                Messages
-                            </h3>
-                            <div
-                                id="messagesWrapper" ref={messageWrapperRef}
-                                onScroll={loadOlderMessages}
-                                className='message-wrapper'
-                            >
-                                {messages.map(
-                                    message => (
-                                        <Message
-                                            message={message}
-                                            userId={userId}
-                                            deleteMessage={() => deleteMessage(openSB, currentChannel?.url, message)}
-                                            key={message.messageId}
-                                        />
-                                    )
-                                )}
-                            </div>
-                            <MessageDraft {...openChat} {...messagesData} />
-                        </article>
-                    )}
-                </section>
-            </div>
-        </main>
+                        currentChannelType='open'
+                    />
+            }
+        >
+            <>
+                <ParticipantList channelParticipants={channelParticipants} goPrivate={goPrivate}/>
+                {messages && (
+                    <article className='message-list'>
+                        <h3 className='p-2 shadow-md z-10'>
+                            Messages
+                        </h3>
+                        <div
+                            id="messagesWrapper" ref={messageWrapperRef}
+                            onScroll={loadOlderMessages}
+                            className='message-wrapper'
+                        >
+                            {messages.map(
+                                message => (
+                                    <Message
+                                        message={message}
+                                        userId={userId}
+                                        deleteMessage={() => deleteMessage(openSB, currentChannel?.url, message)}
+                                        key={message.messageId}
+                                    />
+                                )
+                            )}
+                        </div>
+                        <MessageDraft {...openChat} {...messagesData} />
+                    </article>
+                )}
+            </>
+        </ChatLayoutTemplate>
     )
 }
 

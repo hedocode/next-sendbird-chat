@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 export default function ChatLayout({
     children,
   }: Readonly<{
-    children: React.ReactNode;
+    children: React.ReactNode|React.ReactNode[];
   }>) {
     const authContext = useAuthContext();
     const { setAccessToken } = authContext ?? {};
@@ -23,7 +23,7 @@ export default function ChatLayout({
 
     return (
       <>
-        <Button color="red" className="rounded-bl absolute top-0 right-0" onClick={disconnect}>
+        <Button color="red" className="rounded-bl absolute top-0 right-0 text-xs overflow-hidden max-w-8 sm:max-w-full" onClick={disconnect}>
             Disconnect
         </Button>
         {children}
